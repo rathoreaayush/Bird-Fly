@@ -1,0 +1,488 @@
+index.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chidiya Udd - Traditional Indian Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 90%;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            color: #FFD700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .score-item {
+            text-align: center;
+        }
+
+        .score-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #FFD700;
+        }
+
+        .score-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .game-area {
+            margin: 30px 0;
+        }
+
+        .current-item {
+            font-size: 3em;
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .current-item.correct {
+            border-color: #4CAF50;
+            background: rgba(76, 175, 80, 0.3);
+        }
+
+        .current-item.wrong {
+            border-color: #f44336;
+            background: rgba(244, 67, 54, 0.3);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin: 30px 0;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            min-width: 120px;
+        }
+
+        .fly-btn {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .fly-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.6);
+        }
+
+        .no-fly-btn {
+            background: linear-gradient(45deg, #f44336, #da190b);
+            color: white;
+            box-shadow: 0 4px 15px rgba(244, 67, 54, 0.4);
+        }
+
+        .no-fly-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(244, 67, 54, 0.6);
+        }
+
+        .start-btn {
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            color: #333;
+            padding: 20px 40px;
+            font-size: 1.5em;
+        }
+
+        .start-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.6);
+        }
+
+        .game-over {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .timer {
+            font-size: 1.5em;
+            color: #FFD700;
+            margin: 10px 0;
+        }
+
+        .feedback {
+            font-size: 1.5em;
+            margin: 15px 0;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .feedback.show {
+            opacity: 1;
+        }
+
+        .feedback.correct {
+            color: #4CAF50;
+        }
+
+        .feedback.wrong {
+            color: #f44336;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+
+        .current-item.animate {
+            animation: bounce 0.6s;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🐦 Chidiya Udd 🐦</h1>
+        <p class="subtitle">Traditional Indian Flying Game</p>
+        
+        <div id="menuScreen">
+            <div class="score-board">
+                <div class="score-item">
+                    <div class="score-number" id="highScore">0</div>
+                    <div class="score-label">High Score</div>
+                </div>
+                <div class="score-item">
+                    <div class="score-number" id="gamesPlayed">0</div>
+                    <div class="score-label">Games Played</div>
+                </div>
+            </div>
+            
+            <button class="btn start-btn" onclick="startGame()">Start Game</button>
+            
+            <div style="margin-top: 30px; opacity: 0.8; font-size: 0.9em;">
+                <p><strong>How to Play:</strong></p>
+                <p>Click "Can Fly!" if the item can fly</p>
+                <p>Click "Cannot Fly!" if it cannot fly</p>
+                <p>Score points for correct answers!</p>
+            </div>
+        </div>
+
+        <div id="gameScreen" class="hidden">
+            <div class="score-board">
+                <div class="score-item">
+                    <div class="score-number" id="currentScore">0</div>
+                    <div class="score-label">Score</div>
+                </div>
+                <div class="score-item">
+                    <div class="score-number" id="lives">3</div>
+                    <div class="score-label">Lives</div>
+                </div>
+                <div class="score-item">
+                    <div class="score-number" id="round">1</div>
+                    <div class="score-label">Round</div>
+                </div>
+            </div>
+
+            <div class="timer" id="timer">Time: 5</div>
+            
+            <div class="game-area">
+                <div class="current-item" id="currentItem">Ready?</div>
+                <div class="feedback" id="feedback"></div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn fly-btn" onclick="playerChoice(true)">
+                    ✈️ Can Fly!
+                </button>
+                <button class="btn no-fly-btn" onclick="playerChoice(false)">
+                    🚫 Cannot Fly!
+                </button>
+            </div>
+        </div>
+
+        <div id="gameOverScreen" class="hidden">
+            <div class="game-over">
+                <h2>Game Over!</h2>
+                <p style="font-size: 1.5em; margin: 15px 0;">Final Score: <span id="finalScore">0</span></p>
+                <p id="gameOverMessage"></p>
+                <button class="btn start-btn" onclick="backToMenu()" style="margin-top: 20px;">Play Again</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game data
+        const items = [
+            // Things that can fly
+            { name: "चिड़िया (Chidiya)", emoji: "🐦", canFly: true },
+            { name: "तितली (Titli)", emoji: "🦋", canFly: true },
+            { name: "मक्खी (Makkhi)", emoji: "🪰", canFly: true },
+            { name: "गिद्ध (Giddh)", emoji: "🦅", canFly: true },
+            { name: "कौआ (Kauwa)", emoji: "🐦‍⬛", canFly: true },
+            { name: "बाज (Baaj)", emoji: "🦅", canFly: true },
+            { name: "मधुमक्खी (Madhumakhi)", emoji: "🐝", canFly: true },
+            { name: "चमगादड़ (Chamgadar)", emoji: "🦇", canFly: true },
+            { name: "हवाई जहाज (Hawai Jahaj)", emoji: "✈️", canFly: true },
+            { name: "पतंग (Patang)", emoji: "🪁", canFly: true },
+            { name: "मच्छर (Machchar)", emoji: "🦟", canFly: true },
+            { name: "तोता (Tota)", emoji: "🦜", canFly: true },
+            
+            // Things that cannot fly
+            { name: "हाथी (Haathi)", emoji: "🐘", canFly: false },
+            { name: "शेर (Sher)", emoji: "🦁", canFly: false },
+            { name: "गाय (Gaay)", emoji: "🐄", canFly: false },
+            { name: "कुत्ता (Kutta)", emoji: "🐕", canFly: false },
+            { name: "बिल्ली (Billi)", emoji: "🐱", canFly: false },
+            { name: "घोड़ा (Ghoda)", emoji: "🐎", canFly: false },
+            { name: "बकरी (Bakri)", emoji: "🐐", canFly: false },
+            { name: "सांप (Saanp)", emoji: "🐍", canFly: false },
+            { name: "मेंढक (Mendhak)", emoji: "🐸", canFly: false },
+            { name: "मछली (Machli)", emoji: "🐟", canFly: false },
+            { name: "कार (Car)", emoji: "🚗", canFly: false },
+            { name: "पेड़ (Ped)", emoji: "🌳", canFly: false },
+            { name: "किताब (Kitab)", emoji: "📚", canFly: false },
+            { name: "घर (Ghar)", emoji: "🏠", canFly: false },
+            { name: "चम्मच (Chammach)", emoji: "🥄", canFly: false }
+        ];
+
+        // Game state
+        let currentScore = 0;
+        let lives = 3;
+        let round = 1;
+        let currentItemIndex = 0;
+        let gameItems = [];
+        let timeLeft = 5;
+        let timer = null;
+        let highScore = parseInt(localStorage.getItem('chidiyaUddHighScore')) || 0;
+        let gamesPlayed = parseInt(localStorage.getItem('chidiyaUddGamesPlayed')) || 0;
+
+        // Initialize
+        document.getElementById('highScore').textContent = highScore;
+        document.getElementById('gamesPlayed').textContent = gamesPlayed;
+
+        function startGame() {
+            // Reset game state
+            currentScore = 0;
+            lives = 3;
+            round = 1;
+            currentItemIndex = 0;
+            
+            // Shuffle items for this game
+            gameItems = [...items].sort(() => Math.random() - 0.5);
+            
+            // Switch to game screen
+            document.getElementById('menuScreen').classList.add('hidden');
+            document.getElementById('gameOverScreen').classList.add('hidden');
+            document.getElementById('gameScreen').classList.remove('hidden');
+            
+            updateDisplay();
+            nextItem();
+        }
+
+        function updateDisplay() {
+            document.getElementById('currentScore').textContent = currentScore;
+            document.getElementById('lives').textContent = lives;
+            document.getElementById('round').textContent = round;
+        }
+
+        function nextItem() {
+            if (currentItemIndex >= gameItems.length) {
+                // Reshuffle for next round
+                gameItems = [...items].sort(() => Math.random() - 0.5);
+                currentItemIndex = 0;
+                round++;
+                updateDisplay();
+            }
+
+            const item = gameItems[currentItemIndex];
+            const itemElement = document.getElementById('currentItem');
+            
+            itemElement.textContent = `${item.emoji} ${item.name}`;
+            itemElement.className = 'current-item animate';
+            
+            // Clear any previous feedback
+            const feedback = document.getElementById('feedback');
+            feedback.className = 'feedback';
+            feedback.textContent = '';
+            
+            // Start timer
+            timeLeft = Math.max(3, 6 - Math.floor(round / 3)); // Gets faster as rounds progress
+            startTimer();
+        }
+
+        function startTimer() {
+            clearInterval(timer);
+            updateTimerDisplay();
+            
+            timer = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    // Time's up - treat as wrong answer
+                    playerChoice(null);
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            document.getElementById('timer').textContent = `Time: ${timeLeft}`;
+        }
+
+        function playerChoice(canFly) {
+            clearInterval(timer);
+            
+            const item = gameItems[currentItemIndex];
+            const itemElement = document.getElementById('currentItem');
+            const feedback = document.getElementById('feedback');
+            
+            let isCorrect = false;
+            
+            if (canFly === null) {
+                // Time's up
+                feedback.textContent = "Time's Up! ⏰";
+                feedback.className = 'feedback wrong show';
+            } else if (canFly === item.canFly) {
+                // Correct answer
+                isCorrect = true;
+                currentScore += 10 + Math.floor(round / 2) * 5; // More points in later rounds
+                feedback.textContent = "Correct! 🎉";
+                feedback.className = 'feedback correct show';
+                itemElement.className = 'current-item correct';
+            } else {
+                // Wrong answer
+                lives--;
+                feedback.textContent = `Wrong! ${item.name} ${item.canFly ? 'can' : 'cannot'} fly`;
+                feedback.className = 'feedback wrong show';
+                itemElement.className = 'current-item wrong';
+            }
+            
+            updateDisplay();
+            
+            // Check game over
+            if (lives <= 0) {
+                setTimeout(gameOver, 1500);
+            } else {
+                currentItemIndex++;
+                setTimeout(nextItem, 1500);
+            }
+        }
+
+        function gameOver() {
+            clearInterval(timer);
+            
+            // Update statistics
+            gamesPlayed++;
+            if (currentScore > highScore) {
+                highScore = currentScore;
+                localStorage.setItem('chidiyaUddHighScore', highScore);
+            }
+            localStorage.setItem('chidiyaUddGamesPlayed', gamesPlayed);
+            
+            // Show game over screen
+            document.getElementById('gameScreen').classList.add('hidden');
+            document.getElementById('gameOverScreen').classList.remove('hidden');
+            
+            document.getElementById('finalScore').textContent = currentScore;
+            
+            let message = "";
+            if (currentScore === highScore && currentScore > 0) {
+                message = "🏆 New High Score! Amazing!";
+            } else if (currentScore >= 100) {
+                message = "🌟 Excellent performance!";
+            } else if (currentScore >= 50) {
+                message = "👍 Good job!";
+            } else {
+                message = "Keep practicing! 💪";
+            }
+            
+            document.getElementById('gameOverMessage').textContent = message;
+        }
+
+        function backToMenu() {
+            document.getElementById('gameOverScreen').classList.add('hidden');
+            document.getElementById('menuScreen').classList.remove('hidden');
+            
+            // Update menu display
+            document.getElementById('highScore').textContent = highScore;
+            document.getElementById('gamesPlayed').textContent = gamesPlayed;
+        }
+
+        // Keyboard controls
+        document.addEventListener('keydown', function(event) {
+            if (document.getElementById('gameScreen').classList.contains('hidden')) return;
+            
+            if (event.key === 'ArrowUp' || event.key === 'y' || event.key === 'Y') {
+                playerChoice(true);
+            } else if (event.key === 'ArrowDown' || event.key === 'n' || event.key === 'N') {
+                playerChoice(false);
+            }
+        });
+    </script>
+</body>
+</html>
